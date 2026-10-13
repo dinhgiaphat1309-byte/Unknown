@@ -1,0 +1,333 @@
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local speaker = Players.LocalPlayer
+
+-- Hàm lấy parent chuẩn cho Delta
+local function getGuiParent()
+	if gethui then
+		return gethui()
+	elseif game:GetService("CoreGui"):FindFirstChild("RobloxGui") then
+		return game:GetService("CoreGui")
+	else
+		return speaker:WaitForChild("PlayerGui")
+	end
+end
+
+local targetParent = getGuiParent()
+
+if targetParent:FindFirstChild("Unknown_Fly") then
+	targetParent.Unknown_Fly:Destroy()
+end
+
+-- ScreenGui Chính
+local main = Instance.new("ScreenGui")
+main.Name = "Unknown_Fly"
+main.Parent = targetParent
+main.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+main.ResetOnSpawn = false
+
+-- Khung Frame Chính (Bo góc mềm, viền xám khói tinh tế)
+local Frame = Instance.new("Frame")
+Frame.Parent = main
+Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Frame.BorderColor3 = Color3.fromRGB(40, 40, 40)
+Frame.BorderSizePixel = 1
+Frame.Position = UDim2.new(0.5, -110, 0.4, 0)
+Frame.Size = UDim2.new(0, 220, 0, 115)
+Frame.Active = true
+Frame.Draggable = true
+
+local UICorner_Frame = Instance.new("UICorner")
+UICorner_Frame.CornerRadius = UDim.new(0, 12)
+UICorner_Frame.Parent = Frame
+
+-- Title Bar / Tiêu đề
+local TextLabel = Instance.new("TextLabel")
+TextLabel.Parent = Frame
+TextLabel.BackgroundTransparency = 1
+TextLabel.Position = UDim2.new(0, 12, 0, 8)
+TextLabel.Size = UDim2.new(0, 120, 0, 24)
+TextLabel.Font = Enum.Font.GothamBold
+TextLabel.Text = "UNKNOWN"
+TextLabel.TextColor3 = Color3.fromRGB(240, 240, 240)
+TextLabel.TextSize = 14
+TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Nút Thu Nhỏ (-)
+local mini = Instance.new("TextButton")
+mini.Name = "minimize"
+mini.Parent = Frame
+mini.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mini.Position = UDim2.new(1, -56, 0, 8)
+mini.Size = UDim2.new(0, 20, 0, 20)
+mini.Font = Enum.Font.GothamBold
+mini.Text = "-"
+mini.TextColor3 = Color3.fromRGB(200, 200, 200)
+mini.TextSize = 14
+
+local UICorner_Mini = Instance.new("UICorner")
+UICorner_Mini.CornerRadius = UDim.new(0, 6)
+UICorner_Mini.Parent = mini
+
+-- Nút Đóng (X)
+local closebutton = Instance.new("TextButton")
+closebutton.Name = "Close"
+closebutton.Parent = Frame
+closebutton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+closebutton.Position = UDim2.new(1, -30, 0, 8)
+closebutton.Size = UDim2.new(0, 20, 0, 20)
+closebutton.Font = Enum.Font.GothamBold
+closebutton.Text = "×"
+closebutton.TextColor3 = Color3.fromRGB(255, 100, 100)
+closebutton.TextSize = 14
+
+local UICorner_Close = Instance.new("UICorner")
+UICorner_Close.CornerRadius = UDim.new(0, 6)
+UICorner_Close.Parent = closebutton
+
+-- Khung Speed Control (Group tốc độ)
+local speedFrame = Instance.new("Frame")
+speedFrame.Parent = Frame
+speedFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+speedFrame.BorderSizePixel = 0
+speedFrame.Position = UDim2.new(0, 12, 0, 38)
+speedFrame.Size = UDim2.new(0, 196, 0, 32)
+
+local UICorner_SF = Instance.new("UICorner")
+UICorner_SF.CornerRadius = UDim.new(0, 8)
+UICorner_SF.Parent = speedFrame
+
+-- Nút Giảm Speed (-)
+local mine = Instance.new("TextButton")
+mine.Name = "mine"
+mine.Parent = speedFrame
+mine.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+mine.Position = UDim2.new(0, 4, 0, 4)
+mine.Size = UDim2.new(0, 35, 0, 24)
+mine.Font = Enum.Font.GothamBold
+mine.Text = "-"
+mine.TextColor3 = Color3.fromRGB(255, 255, 255)
+mine.TextSize = 14
+
+local UICorner_Mine = Instance.new("UICorner")
+UICorner_Mine.CornerRadius = UDim.new(0, 6)
+UICorner_Mine.Parent = mine
+
+-- Hiển Thị Speed
+local speed = Instance.new("TextLabel")
+speed.Name = "speed"
+speed.Parent = speedFrame
+speed.BackgroundTransparency = 1
+speed.Position = UDim2.new(0, 43, 0, 4)
+speed.Size = UDim2.new(0, 50, 0, 24)
+speed.Font = Enum.Font.GothamBold
+speed.Text = "1"
+speed.TextColor3 = Color3.fromRGB(200, 200, 200)
+speed.TextSize = 13
+
+-- Nút Tăng Speed (+)
+local plus = Instance.new("TextButton")
+plus.Name = "plus"
+plus.Parent = speedFrame
+plus.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+plus.Position = UDim2.new(0, 97, 0, 4)
+plus.Size = UDim2.new(0, 35, 0, 24)
+plus.Font = Enum.Font.GothamBold
+plus.Text = "+"
+plus.TextColor3 = Color3.fromRGB(255, 255, 255)
+plus.TextSize = 14
+
+local UICorner_Plus = Instance.new("UICorner")
+UICorner_Plus.CornerRadius = UDim.new(0, 6)
+UICorner_Plus.Parent = plus
+
+-- Nút Bật/Tắt Fly (Thiết kế dạng công tắc nổi bật)
+local onof = Instance.new("TextButton")
+onof.Name = "onof"
+onof.Parent = speedFrame
+onof.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+onof.Position = UDim2.new(0, 136, 0, 4)
+onof.Size = UDim2.new(0, 56, 0, 24)
+onof.Font = Enum.Font.GothamBold
+onof.Text = "FLY"
+onof.TextColor3 = Color3.fromRGB(15, 15, 15)
+onof.TextSize = 12
+
+local UICorner_Onof = Instance.new("UICorner")
+UICorner_Onof.CornerRadius = UDim.new(0, 6)
+UICorner_Onof.Parent = onof
+
+-- Nút Bật/Tắt Noclip (Xuyên tường)
+local noclipBtn = Instance.new("TextButton")
+noclipBtn.Name = "noclip"
+noclipBtn.Parent = Frame
+noclipBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+noclipBtn.Position = UDim2.new(0, 12, 0, 76)
+noclipBtn.Size = UDim2.new(0, 196, 0, 30)
+noclipBtn.Font = Enum.Font.GothamBold
+noclipBtn.Text = "NOCLIP : OFF"
+noclipBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
+noclipBtn.TextSize = 12
+
+local UICorner_Noclip = Instance.new("UICorner")
+UICorner_Noclip.CornerRadius = UDim.new(0, 8)
+UICorner_Noclip.Parent = noclipBtn
+
+-- Hiệu ứng Hover mượt mà cho tất cả nút bấm
+local function addEffect(btn, defaultColor, hoverColor)
+	btn.MouseEnter:Connect(function()
+		TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = hoverColor}):Play()
+	end)
+	btn.MouseLeave:Connect(function()
+		TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = defaultColor}):Play()
+	end)
+end
+
+addEffect(mine, Color3.fromRGB(35, 35, 35), Color3.fromRGB(60, 60, 60))
+addEffect(plus, Color3.fromRGB(35, 35, 35), Color3.fromRGB(60, 60, 60))
+addEffect(mini, Color3.fromRGB(30, 30, 30), Color3.fromRGB(50, 50, 50))
+addEffect(closebutton, Color3.fromRGB(40, 40, 40), Color3.fromRGB(70, 40, 40))
+
+-- Logic Xử Lý Chức Năng
+local speeds = 1
+local nowe = false
+local noclip = false
+local tpwalking = false
+
+RunService.Stepped:Connect(function()
+	if noclip and speaker.Character then
+		for _, part in ipairs(speaker.Character:GetDescendants()) do
+			if part:IsA("BasePart") then
+				part.CanCollide = false
+			end
+		end
+	end
+end)
+
+noclipBtn.MouseButton1Down:Connect(function()
+	noclip = not noclip
+	if noclip then
+		noclipBtn.Text = "NOCLIP : ON"
+		TweenService:Create(noclipBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(240, 240, 240), TextColor3 = Color3.fromRGB(15, 15, 15)}):Play()
+	else
+		noclipBtn.Text = "NOCLIP : OFF"
+		TweenService:Create(noclipBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(22, 22, 22), TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
+	end
+end)
+
+onof.MouseButton1Down:Connect(function()
+	if nowe then
+		nowe = false
+		onof.Text = "FLY"
+		TweenService:Create(onof, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(240, 240, 240), TextColor3 = Color3.fromRGB(15, 15, 15)}):Play()
+		
+		if speaker.Character and speaker.Character:FindFirstChildOfClass("Humanoid") then
+			local hum = speaker.Character:FindFirstChildOfClass("Humanoid")
+			for _, state in ipairs(Enum.HumanoidStateType:GetEnumItems()) do
+				hum:SetStateEnabled(state, true)
+			end
+			hum:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+			if speaker.Character:FindFirstChild("Animate") then
+				speaker.Character.Animate.Disabled = false
+			end
+		end
+		tpwalking = false
+	else 
+		nowe = true
+		onof.Text = "OFF"
+		TweenService:Create(onof, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 70), TextColor3 = Color3.fromRGB(240, 240, 240)}):Play()
+
+		for i = 1, speeds do
+			task.spawn(function()
+				tpwalking = true
+				local chr = speaker.Character
+				local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+				while tpwalking and RunService.Heartbeat:Wait() and chr and hum and hum.Parent do
+					if hum.MoveDirection.Magnitude > 0 then
+						chr:TranslateBy(hum.MoveDirection)
+					end
+				end
+			end)
+		end
+
+		if speaker.Character then
+			if speaker.Character:FindFirstChild("Animate") then
+				speaker.Character.Animate.Disabled = true
+			end
+			local char = speaker.Character
+			local hum = char:FindFirstChildOfClass("Humanoid")
+			
+			if hum then
+				for _, v in next, hum:GetPlayingAnimationTracks() do
+					v:AdjustSpeed(0)
+				end
+				for _, state in ipairs(Enum.HumanoidStateType:GetEnumItems()) do
+					hum:SetStateEnabled(state, false)
+				end
+				hum:ChangeState(Enum.HumanoidStateType.Swimming)
+			end
+
+			local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
+			if root then
+				task.spawn(function()
+					local bg = Instance.new("BodyGyro", root)
+					bg.P = 9e4
+					bg.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+					bg.cframe = root.CFrame
+
+					local bv = Instance.new("BodyVelocity", root)
+					bv.velocity = Vector3.new(0, 0.1, 0)
+					bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
+
+					hum.PlatformStand = true
+
+					while nowe and char and hum.Health > 0 do
+						RunService.RenderStepped:Wait()
+						bg.cframe = workspace.CurrentCamera.CFrame
+					end
+
+					bg:Destroy()
+					bv:Destroy()
+					hum.PlatformStand = false
+				end)
+			end
+		end
+	end
+end)
+
+plus.MouseButton1Down:Connect(function()
+	speeds = speeds + 1
+	speed.Text = tostring(speeds)
+end)
+
+mine.MouseButton1Down:Connect(function()
+	if speeds > 1 then
+		speeds = speeds - 1
+		speed.Text = tostring(speeds)
+	end
+end)
+
+-- Thu nhỏ / Mở rộng mượt mà
+local isMinimized = false
+mini.MouseButton1Click:Connect(function()
+	isMinimized = not isMinimized
+	if isMinimized then
+		TweenService:Create(Frame, TweenInfo.new(0.25), {Size = UDim2.new(0, 220, 0, 36)}):Play()
+		speedFrame.Visible = false
+		noclipBtn.Visible = false
+		mini.Text = "+"
+	else
+		TweenService:Create(Frame, TweenInfo.new(0.25), {Size = UDim2.new(0, 220, 0, 115)}):Play()
+		task.delay(0.1, function()
+			speedFrame.Visible = true
+			noclipBtn.Visible = true
+		end)
+		mini.Text = "-"
+	end
+end)
+
+closebutton.MouseButton1Click:Connect(function()
+	main:Destroy()
+end)
